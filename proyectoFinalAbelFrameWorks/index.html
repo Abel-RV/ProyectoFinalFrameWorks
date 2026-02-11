@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isaac Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* === ESTILOS VISUALES === */
+        :root {
+            --bg-dark: #121212;
+            --panel-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --accent-red: #d32f2f;
+            --accent-blue: #1976d2;
+            --accent-green: #388e3c;
+            --accent-purple: #7b1fa2;
+            --isaac-flesh: #f5cba7;
+            --border: #444;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        aside {
+            width: 250px;
+            background-color: #050505;
+            border-right: 3px solid var(--accent-red);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--accent-red);
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            text-shadow: 2px 2px 0 #fff;
+        }
+
+        nav button {
+            background: transparent;
+            color: #888;
+            border: none;
+            padding: 15px;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            margin-bottom: 5px;
+            transition: 0.2s;
+            border-left: 4px solid transparent;
+        }
+
+        nav button:hover, nav button.active {
+            color: #fff;
+            background-color: #222;
+            border-left-color: var(--accent-red);
+            padding-left: 20px;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        main { flex: 1; padding: 30px; overflow-y: auto; position: relative; }
+
+        .section { display: none; animation: fadeIn 0.3s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { color: var(--isaac-flesh); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; }
+        h3 { color: #aaa; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
+
+        /* FORMULARIOS Y BARRAS */
+        .form-panel {
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px dashed var(--border);
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            align-items: end;
+        }
+
+        .search-bar {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid var(--border);
+            flex-wrap: wrap; /* Para que baje si no cabe */
+        }
+
+        .input-group { display: flex; flex-direction: column; }
+        label { font-size: 10px; color: #aaa; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; }
+
+        input, select {
+            background: #000;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent-red); }
+
+        /* TABLAS */
+        .table-container {
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            overflow-x: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        th { background-color: #2a2a2a; color: var(--isaac-flesh); font-size: 10px; text-transform: uppercase; }
+        tr:hover { background-color: #333; }
+
+        /* BOTONES */
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; text-transform: uppercase; color: white; transition: 0.2s; }
+        .btn:hover { filter: brightness(1.2); }
+        .btn-save { background-color: var(--accent-green); }
+        .btn-cancel { background-color: #555; }
+        .btn-edit { background-color: var(--accent-blue); padding: 6px 10px; font-size: 10px; }
+        .btn-del { background-color: var(--accent-red); padding: 6px 10px; font-size: 10px; }
+        .btn-items { background-color: var(--accent-purple); padding: 6px 10px; font-size: 10px; }
+        .btn-search { background-color: var(--accent-blue); }
+
+        /* VISTA DETALLE (N:M) */
+        .details-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .relation-box { background: #222; padding: 15px; border-radius: 8px; border: 1px solid #444; }
+        .relation-header { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag { background: #111; padding: 5px 10px; border-radius: 4px; font-size: 11px; border: 1px solid #333; color: var(--isaac-flesh); display: flex; align-items: center; gap: 5px; }
+
+        /* TOAST */
+        #toast {
+            position: fixed; bottom: 30px; right: 30px;
+            background: #333; color: #fff; padding: 15px 25px;
+            border-radius: 5px; border-left: 5px solid var(--accent-green);
+            display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 1000;
+        }
+        .toast-error { border-left-color: var(--accent-red) !important; }
+
+        /* SEPARADOR */
+        .separator { width: 1px; height: 30px; background: #444; margin: 0 5px; }
+    </style>
+</head>
+<body>
+
+<aside>
+    <h1>THE BINDING<br>OF API</h1>
+    <nav>
+        <button onclick="showSection('partidas')" class="active" id="nav-partidas">PARTIDAS</button>
+        <button onclick="showSection('mapas')" id="nav-mapas">MAPAS</button>
+        <button onclick="showSection('personajes')" id="nav-personajes">PERSONAJES</button>
+        <button onclick="showSection('enemigos')" id="nav-enemigos">ENEMIGOS</button>
+        <button onclick="showSection('objetos')" id="nav-objetos">OBJETOS</button>
+        <button onclick="showSection('categorias')" id="nav-categorias">CATEGORÍAS</button>
+        <button onclick="showSection('jugadores')" id="nav-jugadores">JUGADORES</button>
+    </nav>
+</aside>
+
+<main>
+
+    <div id="sec-detalles" class="section">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 id="detail-title">📦 Inventario</h2>
+            <button class="btn btn-cancel" onclick="cerrarDetalles()">🔙 VOLVER</button>
+        </div>
+        <div class="details-container">
+            <div class="relation-box">
+                <h3>💎 Objetos</h3>
+                <div class="relation-header">
+                    <select id="select-add-objeto"></select>
+                    <button class="btn btn-save" onclick="addRelation('objetos')">AÑADIR</button>
+                </div>
+                <div id="list-detalles-objetos" class="tag-list"></div>
+            </div>
+            <div class="relation-box" id="box-enemigos">
+                <h3>💀 Enemigos</h3>
+                <div class="relation-header">
+                    <select id="select-add-enemigo"></select>
+                    <button class="btn btn-save" onclick="addRelation('enemigos')">AÑADIR</button>
+                </div>
+                <div id="list-detalles-enemigos" class="tag-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sec-partidas" class="section active">
+        <h2>Runs (Partidas)</h2>
+        <div class="form-panel">
+            <input type="hidden" id="partida-id">
+            <div class="input-group"><label>Jugador</label><select id="partida-jugador"><option>Cargando...</option></select></div>
+            <div class="input-group"><label>Personaje</label><select id="partida-personaje"><option>Cargando...</option></select></div>
+            <div class="input-group"><label>Modo</label>
+                <select id="partida-tipo"><option value="NORMAL">Normal</option><option value="DIFICIL">Difícil</option><option value="GREED">Greed Mode</option></select>
+            </div>
+            <div class="input-group"><label>Estado</label>
+                <select id="partida-estado"><option value="EN_PROGRESO">En Progreso</option><option value="VICTORIA">Victoria</option><option value="MUERTO">Muerto</option></select>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-save" onclick="guardarPartida()">GUARDAR</button>
+                <button class="btn btn-cancel" onclick="limpiarForm('partida')">LIMPIAR</button>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="number" id="search-partida-id" placeholder="ID..." style="width: 80px;">
+            <button class="btn btn-search" onclick="buscarPorID('/partidas', 'search-partida-id', renderPartidas)">🔍</button>
+
+            <div class="separator"></div>
+
+            <select id="search-partida-tipo" style="width: 110px;">
+                <option value="">Modo...</option>
+                <option value="NORMAL">Normal</option>
+                <option value="DIFICIL">Difícil</option>
+                <option value="GREED">Greed</option>
+            </select>
+            <select id="search-partida-estado" style="width: 120px;">
+                <option value="">Estado...</option>
+                <option value="VICTORIA">Victoria</option>
+                <option value="MUERTO">Muerto</option>
+                <option value="EN_PROGRESO">Jugando</option>
+            </select>
+            <button class="btn btn-search" onclick="buscarPartidasAvanzado()">🔍 FILTRAR</button>
+
+            <div class="separator"></div>
+
+            <button class="btn btn-cancel" onclick="loadPartidas()">🔄 TODO</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead><tr><th>ID</th><th>Jugador</th><th>Personaje</th><th>Modo</th><th>Estado</th><th>Items</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-partidas"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="sec-mapas" class="section">
+        <h2>Salas</h2>
+        <div class="form-panel">
+            <input type="hidden" id="mapa-id">
+            <div class="input-group"><label>Nombre Sala</label><input type="text" id="mapa-nombre" placeholder="Ej: Sala Tesoro"></div>
+            <div class="input-group"><label>Tipo Piso</label>
+                <select id="mapa-tipo">
+                    <option value="SOTANO">Sótano</option><option value="CUEVAS">Cuevas</option>
+                    <option value="PROFUNDIDADES">Profundidades</option><option value="WOMB">Womb</option>
+                    <option value="SHEOL">Sheol</option><option value="CATEDRAL">Catedral</option>
+                </select>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-save" onclick="guardarMapa()">GUARDAR</button>
+                <button class="btn btn-cancel" onclick="limpiarForm('mapa')">LIMPIAR</button>
+            </div>
+        </div>
+        <div class="search-bar">
+            <input type="number" id="search-mapa-id" placeholder="ID Mapa...">
+            <button class="btn btn-search" onclick="buscarPorID('/mapas', 'search-mapa-id', renderMapas)">🔍</button>
+            <button class="btn btn-cancel" onclick="loadMapas()">🔄</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Objetos</th><th>Acciones</th></tr></thead>
+                <tbody id="tabla-mapas"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="sec-generico" class="section">
+        <h2 id="gen-title">Gestión</h2>
+        <div id="gen-form" class="form-panel"></div>
+        <div class="search-bar">
+            <input type="number" id="search-gen-id" placeholder="ID...">
+            <button class="btn btn-search" onclick="buscarGenerico()">🔍</button>
+            <button class="btn btn-cancel" onclick="recargarGenerico()">🔄</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead id="gen-thead"></thead>
+                <tbody id="gen-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="toast">Notificación</div>
+
+<script>
+    const API = 'http://localhost:8080';
+    let currentParentId = null, currentContext = null, currentEntity = null;
+
+    // CONFIGURACIÓN DE TABLAS Y CAMPOS
+    const SCHEMAS = {
+        personajes: {
+            fields: ['nombre', 'numCorazones', 'tipoCorazon', 'ataque', 'velocidad', 'velocidadLagrimas', 'rango', 'suerte'],
+            headers: ['Nombre', 'HP', 'Tipo', 'Daño', 'Velocidad', 'Cadencia', 'Alcance', 'Suerte']
+        },
+        jugadores: { fields: ['nombre', 'email'], headers: ['Nombre', 'Email'] },
+        objetos: { fields: ['nombre', 'descripcion'], headers: ['Nombre', 'Desc'], relation: 'categoria' },
+        enemigos: { fields: ['nombreEnemigo', 'vida', 'tipo'], headers: ['Nombre', 'HP', 'Tipo'] },
+        categorias: { fields: ['nombreCategoria'], headers: ['Nombre'] }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => showSection('partidas'));
+
+    /* NAVEGACIÓN */
+    function showSection(name) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+        if(name === 'detalles') {
+            document.getElementById('sec-detalles').classList.add('active');
+        } else if(name === 'partidas') {
+            document.getElementById('sec-partidas').classList.add('active');
+            document.getElementById('nav-partidas').classList.add('active');
+            loadPartidas(); loadSelectsPartida();
+        } else if(name === 'mapas') {
+            document.getElementById('sec-mapas').classList.add('active');
+            document.getElementById('nav-mapas').classList.add('active');
+            loadMapas();
+        } else {
+            document.getElementById('sec-generico').classList.add('active');
+            document.getElementById(`nav-${name}`).classList.add('active');
+            currentEntity = name;
+            setupGenericSection(name);
+        }
+    }
+
+    /* LÓGICA DETALLES (N:M) */
+    async function abrirDetalles(context, id) {
+        currentContext = context; currentParentId = id;
+        document.getElementById('detail-title').innerText = context === 'partidas' ? `Inventario Run #${id}` : `Contenido Sala #${id}`;
+        const boxEnemigos = document.getElementById('box-enemigos');
+        const container = document.querySelector('.details-container');
+        if(context === 'mapas') { boxEnemigos.style.display = 'none'; container.style.gridTemplateColumns = '1fr'; }
+        else { boxEnemigos.style.display = 'block'; container.style.gridTemplateColumns = '1fr 1fr'; }
+
+        await fillSelect('/objetos?page=0&size=100', 'select-add-objeto', 'nombre');
+        if(context === 'partidas') await fillSelect('/enemigos', 'select-add-enemigo', 'nombreEnemigo');
+        await refreshDetalles(); showSection('detalles');
+    }
+    function cerrarDetalles() { showSection(currentContext); }
+    async function refreshDetalles() {
+        const data = await fetchAPI(`/${currentContext}/${currentParentId}`);
+        if(!data) return;
+        const divObj = document.getElementById('list-detalles-objetos'); divObj.innerHTML = '';
+        if(data.objetos && data.objetos.length > 0) data.objetos.forEach(o => divObj.innerHTML += `<div class="tag">🔹 ${o.nombre}</div>`);
+        else divObj.innerHTML = '<span style="color:#666; font-size:12px;">Vacío</span>';
+
+        if(currentContext === 'partidas') {
+            const divEne = document.getElementById('list-detalles-enemigos'); divEne.innerHTML = '';
+            if(data.enemigos && data.enemigos.length > 0) data.enemigos.forEach(e => divEne.innerHTML += `<div class="tag">👹 ${e.nombreEnemigo || e.nombre}</div>`);
+            else divEne.innerHTML = '<span style="color:#666; font-size:12px;">Vacío</span>';
+        }
+    }
+    async function addRelation(subType) {
+        const selectId = subType === 'objetos' ? 'select-add-objeto' : 'select-add-enemigo';
+        const itemId = document.getElementById(selectId).value;
+        if(!itemId) return showToast("Selecciona...", true);
+        const res = await fetchAPI(`/${currentContext}/${currentParentId}/${subType}/${itemId}`, 'POST');
+        if(res !== null) { showToast("Añadido"); refreshDetalles(); }
+    }
+
+    /* CRUD PARTIDAS */
+    async function loadPartidas() { const data = await fetchAPI('/partidas'); renderPartidas(getDataList(data)); }
+
+    async function buscarPartidasAvanzado() {
+        const tipo = document.getElementById('search-partida-tipo').value;
+        const estado = document.getElementById('search-partida-estado').value;
+        if(!tipo || !estado) return showToast("Selecciona Tipo y Estado", true);
+
+        const url = `/partidas/busqueda?tipoJuego=${tipo}&estadoJugador=${estado}&page=0&size=20`;
+        const data = await fetchAPI(url);
+
+        const lista = getDataList(data);
+        if(lista.length === 0) showToast("No se encontraron partidas", true);
+        renderPartidas(lista);
+    }
+
+    function renderPartidas(list) {
+        const tbody = document.getElementById('tabla-partidas'); tbody.innerHTML = '';
+        list.forEach(p => {
+            const color = p.estadoJugador === 'VICTORIA' ? '#4caf50' : (p.estadoJugador === 'MUERTO' ? '#f44336' : '#fff');
+            tbody.innerHTML += `<tr>
+                    <td>${p.id}</td>
+                    <td>${p.jugador?p.jugador.nombre:'?'}</td>
+                    <td>${p.personaje?p.personaje.nombre:'?'}</td>
+                    <td>${p.tipoJuego}</td>
+                    <td><span style="color:${color}">${p.estadoJugador}</span></td>
+                    <td><button class="btn btn-items" onclick="abrirDetalles('partidas',${p.id})">🎒 ITEMS</button></td>
+                    <td><button class="btn btn-edit" onclick='llenarForm("partida",${JSON.stringify(p)})'>E</button><button class="btn btn-del" onclick="borrar('/partidas',${p.id},loadPartidas)">X</button></td>
+                </tr>`;
+        });
+    }
+    async function guardarPartida() {
+        const id = document.getElementById('partida-id').value;
+        const body = { tipoJuego: document.getElementById('partida-tipo').value, estadoJugador: document.getElementById('partida-estado').value, jugador: { id: document.getElementById('partida-jugador').value }, personaje: { id: document.getElementById('partida-personaje').value } };
+        // El backend validará si el personaje tiene suficientes corazones
+        await fetchAPI(id?`/partidas/${id}`:'/partidas', id?'PUT':'POST', body);
+        showToast("Guardado"); loadPartidas(); limpiarForm('partida');
+    }
+    async function loadSelectsPartida() { fillSelect('/jugadores','partida-jugador','nombre'); fillSelect('/personajes','partida-personaje','nombre'); }
+
+    /* CRUD MAPAS */
+    async function loadMapas() { const data = await fetchAPI('/mapas'); renderMapas(getDataList(data)); }
+    function renderMapas(list) {
+        const tbody = document.getElementById('tabla-mapas'); tbody.innerHTML = '';
+        list.forEach(m => {
+            tbody.innerHTML += `<tr><td>${m.id}</td><td>${m.nombre}</td><td>${m.tipoSala}</td>
+                <td><button class="btn btn-items" onclick="abrirDetalles('mapas',${m.id})">🗺️ ITEMS</button></td>
+                <td><button class="btn btn-edit" onclick='llenarForm("mapa",${JSON.stringify(m)})'>E</button><button class="btn btn-del" onclick="borrar('/mapas',${m.id},loadMapas)">X</button></td></tr>`;
+        });
+    }
+    async function guardarMapa() {
+        const id = document.getElementById('mapa-id').value;
+        const body = { nombre: document.getElementById('mapa-nombre').value, tipoSala: document.getElementById('mapa-tipo').value };
+        await fetchAPI(id?`/mapas/${id}`:'/mapas', id?'PUT':'POST', body); showToast("Guardado"); loadMapas(); limpiarForm('mapa');
+    }
+
+    /* CRUD GENÉRICO INTELIGENTE */
+    async function setupGenericSection(entity) {
+        const config = SCHEMAS[entity];
+        document.getElementById('gen-title').innerText = "Gestión de " + entity.toUpperCase();
+
+        // GENERADOR DE FORMULARIO DINÁMICO
+        let formHtml = `<input type="hidden" id="gen-id">`;
+        config.fields.forEach(f => {
+            let inputType = 'text';
+            let step = '0.01'; // Por defecto decimal (para stats)
+
+            // Detectar si es número
+            if(f.includes('num') || ['ataque', 'velocidad', 'rango', 'suerte', 'velocidadLagrimas', 'vida'].includes(f)) {
+                inputType = 'number';
+            }
+
+            // CORRECCIÓN: Si es 'numCorazones' o 'vida', forzar enteros
+            if (f === 'numCorazones' || f === 'vida') {
+                step = '1';
+            }
+
+            if(f === 'tipoCorazon') {
+                formHtml += `<div class="input-group"><label>TIPO CORAZÓN</label>
+                    <select id="gen-${f}">
+                        <option value="CORAZON_ROJO">Rojo</option>
+                        <option value="CORAZON_AZUL">Azul</option>
+                        <option value="CORAZON_OSCURO">Oscuro</option>
+                        <option value="CORAZON_HUESO">Hueso</option>
+                    </select></div>`;
+            } else {
+                formHtml += `<div class="input-group"><label>${f.toUpperCase()}</label><input type="${inputType}" id="gen-${f}" step="${step}"></div>`;
+            }
+        });
+
+        if(config.relation) {
+            formHtml += `<div class="input-group"><label>CATEGORÍA</label><select id="gen-rel-select"></select></div>`;
+            fillSelect('/categorias', 'gen-rel-select', 'nombreCategoria');
+        }
+        formHtml += `<div class="btn-group"><button class="btn btn-save" onclick="guardarGen('${entity}')">GUARDAR</button><button class="btn btn-cancel" onclick="limpiarForm('gen')">LIMPIAR</button></div>`;
+        document.getElementById('gen-form').innerHTML = formHtml;
+        document.getElementById('gen-thead').innerHTML = '<tr><th>ID</th>' + config.headers.map(h => `<th>${h}</th>`).join('') + '<th>Acciones</th></tr>';
+        recargarGenerico();
+    }
+
+    async function recargarGenerico() {
+        let url = `/${currentEntity}`; if(currentEntity==='objetos'||currentEntity==='categorias') url += '?page=0&size=50';
+        const res = await fetchAPI(url); renderGenericTable(getDataList(res));
+    }
+    function renderGenericTable(list) {
+        const config = SCHEMAS[currentEntity];
+        const tbody = document.getElementById('gen-tbody'); tbody.innerHTML = '';
+        list.forEach(item => {
+            let row = `<tr><td>${item.id}</td>`;
+            config.fields.forEach(f => {
+                let val = item[f];
+                if(!val && item.categoria && f==='nombreCategoria') val = item.categoria.nombreCategoria;
+                if(!val) val = item[f+'Enemigo'] || '-';
+                row += `<td>${val}</td>`;
+            });
+            row += `<td><button class="btn btn-edit" onclick='editGen(${JSON.stringify(item)},${JSON.stringify(config.fields)})'>E</button><button class="btn btn-del" onclick="borrar('/${currentEntity}',${item.id},recargarGenerico)">X</button></td></tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+    async function guardarGen(entity) {
+        const id = document.getElementById('gen-id').value;
+        const config = SCHEMAS[entity];
+        const body = {};
+        config.fields.forEach(f => body[f] = document.getElementById(`gen-${f}`).value);
+        if(config.relation) body.categoria = { id: document.getElementById('gen-rel-select').value };
+        await fetchAPI(id?`/${entity}/${id}`:`/${entity}`, id?'PUT':'POST', body); showToast("Guardado"); recargarGenerico(); limpiarForm('gen');
+    }
+    function editGen(item, fields) {
+        document.getElementById('gen-id').value = item.id;
+        fields.forEach(f => {
+            let val = item[f];
+            if(!val && item[f + 'Enemigo']) val = item[f + 'Enemigo'];
+            if(document.getElementById(`gen-${f}`)) document.getElementById(`gen-${f}`).value = val;
+        });
+        if(item.categoria) document.getElementById('gen-rel-select').value = item.categoria.id;
+    }
+
+    /* HELPERS */
+    async function fetchAPI(url, method='GET', body=null) {
+        const opts = { method, headers: { 'Content-Type': 'application/json' } }; if(body) opts.body = JSON.stringify(body);
+
+        try {
+            const res = await fetch(API+url, opts);
+
+            // Manejo de errores controlados desde el backend (ej: validación de personaje)
+            if(!res.ok) {
+                const errorText = await res.text();
+                let errorMsg = res.status + " Error";
+                try {
+                    // Intentamos parsear el error si es JSON
+                    const jsonErr = JSON.parse(errorText);
+                    errorMsg = jsonErr.message || jsonErr.error || errorMsg;
+                } catch(e) {
+                    errorMsg = errorText || errorMsg;
+                }
+                showToast("❌ " + errorMsg, true);
+                return null;
+            }
+
+            if(res.status===204) return true;
+            const text = await res.text();
+            return text ? JSON.parse(text) : {};
+        } catch(e) {
+            console.error(e);
+            showToast("❌ Error de conexión", true);
+            return null;
+        }
+    }
+    function getDataList(data) { return data && data.content ? data.content : (data || []); }
+    async function fillSelect(url, id, field) {
+        const res = await fetchAPI(url); const list = getDataList(res); const sel = document.getElementById(id); if(!sel) return;
+        sel.innerHTML = '<option value="">Selecciona...</option>'; list.forEach(i => sel.innerHTML += `<option value="${i.id}">${i[field]||i.nombre||i.nombreEnemigo||'?'}</option>`);
+    }
+    function llenarForm(prefix, data) {
+        document.getElementById(`${prefix}-id`).value = data.id;
+        if(prefix==='partida') { document.getElementById('partida-tipo').value = data.tipoJuego; document.getElementById('partida-estado').value = data.estadoJugador; document.getElementById('partida-jugador').value = data.jugador.id; document.getElementById('partida-personaje').value = data.personaje.id; }
+        if(prefix==='mapa') { document.getElementById('mapa-nombre').value = data.nombre; document.getElementById('mapa-tipo').value = data.tipoSala; }
+    }
+    function limpiarForm(prefix) {
+        document.getElementById(`${prefix}-id`).value = '';
+        document.querySelectorAll(`#sec-${prefix}s input, #gen-form input`).forEach(i => { if(i.type !== 'hidden') i.value = ''; });
+        document.querySelectorAll(`#sec-${prefix}s select`).forEach(s => s.selectedIndex = 0);
+    }
+    async function borrar(url, id, cb) { if(confirm("¿Eliminar?")) { await fetchAPI(`${url}/${id}`, 'DELETE'); showToast("Eliminado"); cb(); } }
+    async function buscarPorID(endpoint, inputId, renderFn) { const id = document.getElementById(inputId).value; if(!id) return showToast("Escribe ID", true); const data = await fetchAPI(`${endpoint}/${id}`); data ? renderFn([data]) : showToast("No encontrado", true); }
+    async function buscarGenerico() { const id = document.getElementById('search-gen-id').value; if(!id) return showToast("Escribe ID", true); const data = await fetchAPI(`/${currentEntity}/${id}`); data ? renderGenericTable([data]) : showToast("No encontrado", true); }
+    function showToast(msg, err=false) { const t=document.getElementById('toast'); t.innerText=msg; t.className=err?'toast-error':''; t.style.display='block'; setTimeout(()=>t.style.display='none',3000); }
+</script>
+</body>
+</html>
