@@ -103,5 +103,8 @@ El proyecto incluye un panel de administración visual. Para usarlo:
 
 ## ✒️ Autor
 
+## Video explicactivo
+https://youtu.be/ika8jEpP9w0
+
 **Abel Ramírez** Desarrollador Backend Java  
 Proyecto Final de Ciclo - Acceso a Datos
