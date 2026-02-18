@@ -24,7 +24,6 @@ export default function PartidasView({ onNavigateDetails }) {
   const loadData = async () => {
     const data = await api.get('/partidas');
     if (data) {
-      // Manejar tanto respuestas paginadas como arrays directos
       setPartidas(data.content || data || []);
     }
   };

@@ -6,8 +6,7 @@ export default function DetallesView({ context, parentId, onBack }) {
   const [data, setData] = useState(null);
   const [allObjetos, setAllObjetos] = useState([]);
   const [allEnemigos, setAllEnemigos] = useState([]);
-  
-  // Selects
+
   const [selectedObj, setSelectedObj] = useState('');
   const [selectedEne, setSelectedEne] = useState('');
 
@@ -38,7 +37,7 @@ export default function DetallesView({ context, parentId, onBack }) {
     if (!itemId) return showToast('Selecciona un elemento', 'error');
 
     try {
-      await api.save(`/${context}/${parentId}/${type}/${itemId}`, {}, null); // Usamos save como POST a endpoint especial
+      await api.save(`/${context}/${parentId}/${type}/${itemId}`, {}, null);
       showToast('Añadido correctamente');
       loadDetails();
     } catch (e) {
@@ -87,7 +86,6 @@ export default function DetallesView({ context, parentId, onBack }) {
           </div>
         </div>
 
-        {/* PANEL ENEMIGOS (Solo para partidas) */}
         {context === 'partidas' && (
           <div className="bg-neutral-900 border border-border-gray rounded-lg p-5">
             <h3 className="text-accent-red text-sm uppercase font-bold mb-4 border-b border-gray-700 pb-2">💀 Enemigos Derrotados</h3>

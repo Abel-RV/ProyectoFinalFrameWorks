@@ -12,13 +12,11 @@
   --color-isaac-flesh: #f5cba7;
   --color-border-gray: #444;
 
-  /* CAMBIA ESTO PARA USAR LA FUENTE DE GOOGLE */
   --font-pixel: "Press Start 2P", cursive; 
   
   --font-roboto: "Roboto", sans-serif;
 }
 
-/* Estilos base */
 body {
   background-color: var(--color-bg-dark);
   color: var(--color-text-main);
@@ -26,7 +24,6 @@ body {
   overflow: hidden;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #111; }
 ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }

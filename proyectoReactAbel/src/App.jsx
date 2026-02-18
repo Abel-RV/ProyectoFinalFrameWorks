@@ -4,13 +4,12 @@ import PartidasView from './views/PartidasView';
 import MapasView from './views/MapasView';
 import GenericCrudView from './views/GenericCrudView';
 import DetallesView from './views/DetallesView';
-import LoginView from './views/LoginView'; // [!code ++]
+import LoginView from './views/LoginView';
 import { ToastProvider } from './components/Toast';
-import { AuthProvider, useAuth } from './context/AuthContext'; // [!code ++]
+import { AuthProvider, useAuth } from './context/AuthContext';
 
-// Creamos un componente interno para separar la lógica de renderizado
 function MainLayout() {
-  const { isAuthenticated, logout } = useAuth(); // [!code ++]
+  const { isAuthenticated, logout } = useAuth();
   
   const [viewState, setViewState] = useState({ 
     section: 'partidas', 
@@ -18,12 +17,10 @@ function MainLayout() {
     detailId: null 
   });
 
-  // Si no está logueado, mostramos el Login
-  if (!isAuthenticated) { // [!code ++]
-    return <LoginView />; // [!code ++]
+  if (!isAuthenticated) {
+    return <LoginView />;
   }
 
-  // --- LÓGICA DE NAVEGACIÓN NORMAL ---
   const navigateToSection = (sectionId) => {
     setViewState({ section: sectionId, mode: 'list', detailId: null });
   };
@@ -58,7 +55,6 @@ function MainLayout() {
       <Sidebar activeSection={viewState.section} setSection={navigateToSection} />
       
       <main className="flex-1 p-8 overflow-y-auto relative flex flex-col">
-        {/* Botón de Logout flotante arriba a la derecha */}
         <div className="absolute top-4 right-8 z-10">
             <button onClick={logout} className="text-xs text-red-500 hover:text-white font-bold uppercase border border-red-900 bg-black px-3 py-1 rounded">
                 Cerrar Sesión
@@ -71,7 +67,6 @@ function MainLayout() {
   );
 }
 
-// App principal envuelta en los Providers
 function App() {
   return (
     <AuthProvider>

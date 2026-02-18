@@ -27,7 +27,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // [NUEVO] Función de registro
   const register = async (email, password) => {
     try {
       await api.register(email, password);
@@ -42,7 +41,6 @@ export function AuthProvider({ children }) {
     setIsAuthenticated(false);
   };
 
-  // Añadimos 'register' al value
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, register, logout, loading }}>
       {!loading && children}

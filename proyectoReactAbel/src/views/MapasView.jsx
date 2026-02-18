@@ -24,37 +24,20 @@ export default function MapasView({ onNavigateDetails }) {
     try {
       const data = await api.get('/mapas');
       
-      console.log('📦 DATOS CRUDOS RECIBIDOS:');
-      console.log('- Tipo:', typeof data);
-      console.log('- Valor:', data);
-      console.log('- Es null?', data === null);
-      console.log('- Es undefined?', data === undefined);
-      console.log('- Es array?', Array.isArray(data));
-      console.log('- Tiene "content"?', data && data.hasOwnProperty('content'));
-      
       let mapasList = [];
       
       if (!data) {
-        console.warn('⚠️ Respuesta vacía o null');
+        console.warn(' Respuesta vacía o null');
         mapasList = [];
       } else if (Array.isArray(data)) {
-        console.log('✅ Respuesta es ARRAY DIRECTO');
         mapasList = data;
       } else if (data.content && Array.isArray(data.content)) {
-        console.log('✅ Respuesta es PAGINADA (tiene content)');
         mapasList = data.content;
       } else if (typeof data === 'object') {
-        console.warn('⚠️ Respuesta es objeto pero no tiene content:');
-        console.log(Object.keys(data));
         mapasList = [];
       } else {
-        console.error('❌ Tipo de respuesta desconocido');
         mapasList = [];
       }
-      
-      console.log('📊 RESULTADO PROCESADO:');
-      console.log('- Total mapas:', mapasList.length);
-      console.log('- Mapas:', mapasList);
       
       setMapas(mapasList);
       
@@ -63,12 +46,6 @@ export default function MapasView({ onNavigateDetails }) {
       }
       
     } catch (error) {
-      console.error('========================================');
-      console.error('❌ ERROR AL CARGAR MAPAS:');
-      console.error('- Mensaje:', error.message);
-      console.error('- Stack:', error.stack);
-      console.error('========================================');
-      
       setError(error.message);
       showToast('Error al cargar las salas: ' + error.message, 'error');
       setMapas([]);
@@ -204,7 +181,6 @@ export default function MapasView({ onNavigateDetails }) {
         </div>
       )}
 
-      {/* BARRA DE INFORMACIÓN */}
       {!loading && !error && (
         <div className="bg-neutral-900 border border-border-gray rounded p-3 mb-4 flex justify-between items-center">
           <span className="text-gray-400 text-sm">

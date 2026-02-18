@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginView() {
-  const { login, register } = useAuth(); // Importamos register
-  const [isRegistering, setIsRegistering] = useState(false); // Estado para cambiar de modo
+  const { login, register } = useAuth();
+  const [isRegistering, setIsRegistering] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState(''); // Mensaje de éxito al registrarse
+  const [successMsg, setSuccessMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,8 +19,8 @@ export default function LoginView() {
       const result = await register(email, password);
       if (result.success) {
         setSuccessMsg('¡Cuenta creada! Ahora puedes iniciar sesión.');
-        setIsRegistering(false); // Volvemos al login
-        setPassword(''); // Limpiamos pass
+        setIsRegistering(false);
+        setPassword('');
       } else {
         setError(result.error || 'Error al crear cuenta');
       }

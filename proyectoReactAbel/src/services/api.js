@@ -10,7 +10,6 @@ const getHeaders = () => {
 };
 
 export const api = {
-  // Login específico (es público, no lleva token)
   login: async (email, password) => {
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
@@ -74,8 +73,7 @@ export const api = {
       if (!res.ok) {
         throw new Error(`Error ${res.status}: ${res.statusText}`);
       }
-      
-      // Si la respuesta está vacía (204 No Content), devolver null
+
       const text = await res.text();
       return text ? JSON.parse(text) : null;
     } catch (err) {
